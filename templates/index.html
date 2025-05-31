@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>aklog - syslog server</title>
+    <link rel="stylesheet" href="/static/bulma.min.css">
+    <style>
+        /* Tab styling */
+        /* Hide all tabs by default */
+        .tab-content {
+            display: none;
+        }
+        /* Show the first tab by default */
+        #tab1 {
+            display: block;
+        }
+
+        /* Message cell styling */
+        .message-cell {
+            max-width: 300px;
+            white-space: normal;
+            word-wrap: break-word;
+            position: relative;
+            padding: 0.5em;
+            line-height: 1.2;
+        }
+        .message-cell:hover {
+            cursor: pointer;
+        }
+
+        /* Severity styling */
+        .severity-error {
+            background-color: #ffebee !important; /* Light red */
+        }
+        .severity-warning {
+            background-color: #fff8e1 !important; /* Light yellow */
+        }
+        .severity-info {
+            background-color: #e3f2fd !important; /* Light blue */
+        }
+        .severity-debug {
+            background-color: #f1f8e9 !important; /* Light green */
+        }
+        /* Override striped table styling */
+        .table.is-striped tr.severity-error:nth-child(even),
+        .table.is-striped tr.severity-warning:nth-child(even),
+        .table.is-striped tr.severity-info:nth-child(even),
+        .table.is-striped tr.severity-debug:nth-child(even) {
+            background-color: inherit;
+        }
+    </style>
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title is-1 has-text-centered">
+                AkLog
+            </h1>
+            <h2 class="subtitle has-text-centered">
+                A simple syslog server that stores logs in a SQLite database
+            </h2>
+            <div class="box">
+                <p class="has-text-centered">
+                    This server is currently listening for syslog messages on UDP port 514.
+                </p>
+
+                <!-- Tabs -->
+                <div class="tabs is-centered">
+                    <ul>
+                        <li><a href="#tab1" class="tab-link" data-tab="tab1">Logs</a></li>
+                        <li><a href="#tab2" class="tab-link" data-tab="tab2">Config</a></li>
+                    </ul>
+                </div>
+
+                <!-- Tab Contents -->
+                {{template "logs" .}}
+                {{template "config" .}}
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click event to tab links
+            const tabLinks = document.querySelectorAll('.tab-link');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // Get the tab ID from the data-tab attribute
+                    const tabId = this.getAttribute('data-tab');
+
+                    // Hide all tab contents
+                    tabContents.forEach(content => {
+                        content.style.display = 'none';
+                    });
+
+                    // Show the selected tab content
+                    document.getElementById(tabId).style.display = 'block';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
