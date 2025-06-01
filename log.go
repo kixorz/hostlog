@@ -10,7 +10,7 @@ import (
 
 type Log struct {
 	gorm.Model
-	Client    string
+	ClientIP  string
 	Hostname  string
 	Content   string
 	Priority  int
@@ -52,7 +52,7 @@ func SaveLog(logParts map[string]interface{}) error {
 
 	// Create a new Log struct
 	log := Log{
-		Client: clientString, // Always store the original client string in the Client field
+		ClientIP: clientIP,
 	}
 
 	// Try to find a LogMap configuration for this client IP (without port)

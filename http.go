@@ -81,7 +81,7 @@ func formatLogsForDisplay(logs []Log) []LogDisplay {
 
 		displayLog := LogDisplay{
 			Timestamp: log.Timestamp.Format("2006-01-02 15:04:05"),
-			Source:    log.Client,
+			Source:    log.ClientIP,
 			Severity:  severity,
 			Message:   log.Content,
 			Class:     class,
