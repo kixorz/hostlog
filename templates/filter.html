@@ -1,0 +1,52 @@
+{{define "host_filter"}}
+<div class="field">
+    <label class="label">Host Filter</label>
+    <div class="control">
+        <div class="dropdown" id="host-filter-dropdown">
+            <div class="dropdown-trigger">
+                <button class="button is-small" aria-haspopup="true" aria-controls="host-filter-menu">
+                    <span>Filter by Host</span>
+                    <span class="icon is-small">
+                        <i class="fas fa-angle-down" aria-hidden="true"></i>
+                    </span>
+                </button>
+            </div>
+            <div class="dropdown-menu" id="host-filter-menu" role="menu">
+                <div class="dropdown-content">
+                    <a href="#" class="dropdown-item host-filter-item" data-ip="all">
+                        All Hosts
+                    </a>
+                    <hr class="dropdown-divider">
+                    {{range .Hosts}}
+                    <a href="#" class="dropdown-item host-filter-item" data-ip="{{.Host}}">
+                        {{.Host}}
+                    </a>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="control mt-2" id="active-host-filters" style="display: none;">
+        <div class="tags">
+            <span class="tag is-info is-light">
+                Active Filters:
+            </span>
+            <!-- Active filter tags will be added here by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Top Hosts by Score -->
+    <div class="control mt-3">
+        <div class="tags">
+            <span class="tag is-primary is-light">
+                Top Hosts:
+            </span>
+            {{range .Hosts}}
+            <span class="tag is-primary" title="Score: {{.Score}}">
+                {{.Host}}
+            </span>
+            {{end}}
+        </div>
+    </div>
+</div>
+{{end}}
