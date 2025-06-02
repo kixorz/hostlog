@@ -301,19 +301,25 @@ func TestGetAllHostScoresCSV(t *testing.T) {
 	loadTestLogsFromCSV(t, db, "testdata/all_hosts_test.csv")
 
 	// Call the function being tested
-	scores, err := GetAllHostScores()
+	hostScorePairs, err := GetAllHostScores()
 
 	// Verify results
 	if err != nil {
 		t.Fatalf("GetAllHostScores returned an error: %v", err)
 	}
-	if scores == nil {
+	if hostScorePairs == nil {
 		t.Fatal("GetAllHostScores returned nil scores")
 	}
 
 	// Check that we have at least one host score
-	if len(scores) == 0 {
+	if len(hostScorePairs) == 0 {
 		t.Error("Expected at least one host score, got none")
+	}
+
+	// Convert to map for easier testing
+	scores := make(map[string]float64)
+	for _, pair := range hostScorePairs {
+		scores[pair.Host] = pair.Score
 	}
 
 	// All scores should be positive

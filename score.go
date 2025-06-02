@@ -148,15 +148,21 @@ func GetAllHosts() ([]string, error) {
 	return hosts, result.Error
 }
 
+// HostScore represents a host and its visibility score
+type HostScore struct {
+	Host  string
+	Score float64
+}
+
 // GetAllHostScores calculates visibility scores for all hosts
-// Returns a map of hostname to score
-func GetAllHostScores() (map[string]float64, error) {
+// Returns a list of host-score pairs
+func GetAllHostScores() ([]HostScore, error) {
 	hosts, err := GetAllHosts()
 	if err != nil {
 		return nil, err
 	}
 
-	scores := make(map[string]float64)
+	var hostScores []HostScore
 	for _, host := range hosts {
 		if host == "" {
 			continue // Skip empty hosts
@@ -169,8 +175,8 @@ func GetAllHostScores() (map[string]float64, error) {
 			continue
 		}
 
-		scores[host] = score
+		hostScores = append(hostScores, HostScore{Host: host, Score: score})
 	}
 
-	return scores, nil
+	return hostScores, nil
 }

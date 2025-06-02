@@ -48,21 +48,20 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get unique client IPs for host-based filter
-	clientIPs, err := GetUniqueClientIPs()
+	hostScores, err := GetAllHostScores()
 	if err != nil {
-		log.Printf("Error retrieving client IPs: %v", err)
-		// Continue with empty client IPs list
-		clientIPs = []string{}
+		log.Printf("Error retrieving host scores: %v", err)
+		// Continue with empty host scores
+		hostScores = []HostScore{}
 	}
 
 	// Prepare data for template
 	data := struct {
-		Logs      []LogDisplay
-		ClientIPs []string
+		Logs  []LogDisplay
+		Hosts []HostScore
 	}{
-		Logs:      formatLogsForDisplay(logs),
-		ClientIPs: clientIPs,
+		Logs:  formatLogsForDisplay(logs),
+		Hosts: hostScores,
 	}
 
 	// Render template
