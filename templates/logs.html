@@ -1,6 +1,15 @@
 {{define "logs"}}
 <div id="tab1" class="tab-content">
-    <h3 class="title is-4">Logs</h3>
+    <div class="level">
+        <div class="level-left">
+            <h3 class="title is-4 level-item">Logs</h3>
+        </div>
+        <div class="level-right">
+            <div class="level-item">
+                {{template "host_filter" .}}
+            </div>
+        </div>
+    </div>
     <table class="table is-striped is-hoverable is-fullwidth">
         <thead>
             <tr>

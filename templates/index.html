@@ -49,6 +49,16 @@
         .table.is-striped tr.severity-debug:nth-child(even) {
             background-color: inherit;
         }
+
+        /* Host filter styling */
+        #host-filter-dropdown .dropdown-content {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        #active-host-filters .tags {
+            flex-wrap: wrap;
+        }
     </style>
 </head>
 <body>
@@ -102,6 +112,110 @@
                     document.getElementById(tabId).style.display = 'block';
                 });
             });
+
+            // Host filter functionality
+            const hostFilterDropdown = document.getElementById('host-filter-dropdown');
+            const hostFilterItems = document.querySelectorAll('.host-filter-item');
+            const activeHostFilters = document.getElementById('active-host-filters');
+            const logRows = document.querySelectorAll('tbody tr');
+
+            // Set of active filters
+            let activeFilters = new Set();
+
+            // Toggle dropdown
+            if (hostFilterDropdown) {
+                hostFilterDropdown.querySelector('.dropdown-trigger button').addEventListener('click', function() {
+                    hostFilterDropdown.classList.toggle('is-active');
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!hostFilterDropdown.contains(e.target)) {
+                        hostFilterDropdown.classList.remove('is-active');
+                    }
+                });
+            }
+
+            // Handle filter item clicks
+            if (hostFilterItems) {
+                hostFilterItems.forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const ip = this.getAttribute('data-ip');
+
+                        // Close the dropdown
+                        hostFilterDropdown.classList.remove('is-active');
+
+                        if (ip === 'all') {
+                            // Clear all filters
+                            activeFilters.clear();
+                            updateActiveFiltersDisplay();
+                            applyFilters();
+                            return;
+                        }
+
+                        // Toggle the filter
+                        if (activeFilters.has(ip)) {
+                            activeFilters.delete(ip);
+                        } else {
+                            activeFilters.add(ip);
+                        }
+
+                        updateActiveFiltersDisplay();
+                        applyFilters();
+                    });
+                });
+            }
+
+            // Update the active filters display
+            function updateActiveFiltersDisplay() {
+                // Clear existing tags
+                const tagsContainer = activeHostFilters.querySelector('.tags');
+                while (tagsContainer.children.length > 1) {
+                    tagsContainer.removeChild(tagsContainer.lastChild);
+                }
+
+                // Show/hide the active filters section
+                if (activeFilters.size > 0) {
+                    activeHostFilters.style.display = 'block';
+
+                    // Add new tags
+                    activeFilters.forEach(ip => {
+                        const tag = document.createElement('span');
+                        tag.className = 'tag is-info';
+                        tag.textContent = ip;
+
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.className = 'delete is-small';
+                        deleteBtn.addEventListener('click', function() {
+                            activeFilters.delete(ip);
+                            updateActiveFiltersDisplay();
+                            applyFilters();
+                        });
+
+                        tag.appendChild(deleteBtn);
+                        tagsContainer.appendChild(tag);
+                    });
+                } else {
+                    activeHostFilters.style.display = 'none';
+                }
+            }
+
+            // Apply filters to the log rows
+            function applyFilters() {
+                logRows.forEach(row => {
+                    const sourceCell = row.querySelector('td:nth-child(2)');
+                    if (!sourceCell) return;
+
+                    const ip = sourceCell.textContent.trim();
+
+                    if (activeFilters.size === 0 || activeFilters.has(ip)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
         });
     </script>
 </body>

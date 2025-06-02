@@ -144,6 +144,13 @@ func GetRecentLogs(limit int) ([]Log, error) {
 	return logs, result.Error
 }
 
+// GetUniqueClientIPs retrieves a list of unique client IPs from the database
+func GetUniqueClientIPs() ([]string, error) {
+	var clientIPs []string
+	result := db.Model(&Log{}).Distinct("client_ip").Pluck("client_ip", &clientIPs)
+	return clientIPs, result.Error
+}
+
 // CreateDefaultLogMaps creates a default LogMap entry for a client IP
 // with standard field mappings
 func CreateDefaultLogMaps(clientIP string) error {
