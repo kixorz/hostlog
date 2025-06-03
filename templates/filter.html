@@ -1,6 +1,5 @@
 {{define "host_filter"}}
-<div class="field">
-    <label class="label">Host Filter</label>
+<div class="level-item">
     <div class="control">
         <div class="dropdown" id="host-filter-dropdown">
             <div class="dropdown-trigger">
@@ -26,27 +25,19 @@
             </div>
         </div>
     </div>
-    <div class="control mt-2" id="active-host-filters" style="display: none;">
-        <div class="tags">
-            <span class="tag is-info is-light">
-                Active Filters:
-            </span>
-            <!-- Active filter tags will be added here by JavaScript -->
-        </div>
+</div>
+<div class="level-item">
+    <div class="buttons has-addons">
+        {{range .TopHosts}}
+        <button class="button is-small">
+            {{.Host}}
+        </button>
+        {{end}}
     </div>
-
-    <!-- Top Hosts by Score -->
-    <div class="control mt-3">
-        <div class="tags">
-            <span class="tag is-primary is-light">
-                Top Hosts:
-            </span>
-            {{range .Hosts}}
-            <span class="tag is-primary" title="Score: {{.Score}}">
-                {{.Host}}
-            </span>
-            {{end}}
-        </div>
+</div>
+<div class="level-item" id="active-host-filters" style="display: none;">
+    <div class="tags">
+        <!-- Active filter tags will be added here by JavaScript -->
     </div>
 </div>
 {{end}}

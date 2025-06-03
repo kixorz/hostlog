@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"math"
+	"sort"
 	"time"
 )
 
@@ -179,4 +180,15 @@ func GetAllHostScores() ([]HostScore, error) {
 	}
 
 	return hostScores, nil
+}
+
+func GetTopHostScores(hostScores []HostScore, count int) []HostScore {
+	sort.Slice(hostScores, func(i, j int) bool {
+		return hostScores[i].Score > hostScores[j].Score
+	})
+	sliceCount := min(len(hostScores), count)
+	if sliceCount == 0 {
+		return []HostScore{}
+	}
+	return hostScores[:sliceCount]
 }

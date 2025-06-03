@@ -51,17 +51,20 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 	hostScores, err := GetAllHostScores()
 	if err != nil {
 		log.Printf("Error retrieving host scores: %v", err)
-		// Continue with empty host scores
 		hostScores = []HostScore{}
 	}
 
+	topHostScores := GetTopHostScores(hostScores, 3)
+
 	// Prepare data for template
 	data := struct {
-		Logs  []LogDisplay
-		Hosts []HostScore
+		Logs     []LogDisplay
+		Hosts    []HostScore
+		TopHosts []HostScore
 	}{
-		Logs:  formatLogsForDisplay(logs),
-		Hosts: hostScores,
+		Logs:     formatLogsForDisplay(logs),
+		Hosts:    hostScores,
+		TopHosts: topHostScores,
 	}
 
 	// Render template
