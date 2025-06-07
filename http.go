@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 // Templates for HTML rendering
@@ -24,10 +25,17 @@ func SetupHTTP(staticFiles embed.FS) {
 
 	// Set up routes
 	http.HandleFunc("/", handleIndex)
+	http.HandleFunc("/messages", handleMessages)
 	http.Handle("/static/", http.StripPrefix("/static/", fileServer))
 
-	// Parse templates
-	templates = template.Must(template.ParseFS(staticFiles, "templates/*.html"))
+	// Create template functions map
+	funcMap := template.FuncMap{
+		"add":      func(a, b int) int { return a + b },
+		"subtract": func(a, b int) int { return a - b },
+	}
+
+	// Parse templates with functions
+	templates = template.Must(template.New("").Funcs(funcMap).ParseFS(staticFiles, "templates/*.html"))
 }
 
 // StartHTTPServer starts the HTTP server on the specified port
@@ -119,5 +127,39 @@ func getSeverityInfo(priority int) (string, string) {
 		return "Debug", "severity-debug"
 	default:
 		return "Unknown", ""
+	}
+}
+
+// handleMessages handles requests for the messages endpoint
+func handleMessages(w http.ResponseWriter, r *http.Request) {
+	hosts := r.URL.Query()["h"]
+	page := 0
+	if pageStr := r.URL.Query().Get("p"); pageStr != "" {
+		if p, err := strconv.Atoi(pageStr); err == nil && p > 0 {
+			page = p
+		}
+	}
+
+	logs, err := GetFilteredLogs(hosts, page)
+	if err != nil {
+		log.Printf("Error retrieving logs: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	data := struct {
+		Logs []LogDisplay
+		Page int
+	}{
+		Logs: formatLogsForDisplay(logs),
+		Page: page,
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	err = templates.ExecuteTemplate(w, "messages", data)
+	if err != nil {
+		log.Printf("Error rendering template: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }

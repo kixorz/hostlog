@@ -144,6 +144,21 @@ func GetRecentLogs(limit int) ([]Log, error) {
 	return logs, result.Error
 }
 
+// GetFilteredLogs retrieves logs with filtering and pagination
+func GetFilteredLogs(hosts []string, page int) ([]Log, error) {
+	var logs []Log
+	query := db.Order("created_at desc")
+
+	if len(hosts) > 0 {
+		query = query.Where("client_ip IN ?", hosts)
+	}
+
+	limit := 100
+	offset := max(page, 0)
+	result := query.Offset(offset).Limit(limit).Find(&logs)
+	return logs, result.Error
+}
+
 // GetUniqueClientIPs retrieves a list of unique client IPs from the database
 func GetUniqueClientIPs() ([]string, error) {
 	var clientIPs []string
