@@ -1,5 +1,6 @@
 class Grid {
     name = 'Grid';
+    grid = null
     path = ''
     filters = new Filters();
 
@@ -24,14 +25,17 @@ class Grid {
 
     load() {
         const url = this.getURL();
-        fetch(url).then((response) => {
-            console.info(response);
-        });
+        fetch(url)
+            .then((response) => response.text())
+            .then((text) => {
+                this.grid.innerHTML = text;
+            })
+            .catch(error => console.error(error));
     };
 
     init() {
-        const grid = document.getElementById('grid');
-        this.path = grid.getAttribute('data-path');
+        this.grid = document.getElementById('grid');
+        this.path = this.grid.getAttribute('data-path');
         this.filters.init(this);
     };
 };
