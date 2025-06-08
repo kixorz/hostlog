@@ -12,12 +12,12 @@
             </div>
             <div class="dropdown-menu" id="host-filter-menu" role="menu">
                 <div class="dropdown-content">
-                    <a href="#" class="dropdown-item host-filter-item" data-ip="all">
+                    <a href="#" class="dropdown-item host-filter-item" data-host="">
                         All Hosts
                     </a>
                     <hr class="dropdown-divider">
                     {{range .Hosts}}
-                    <a href="#" class="dropdown-item host-filter-item" data-ip="{{.Host}}">
+                    <a href="#" class="dropdown-item host-filter-item" data-host="{{.Host}}">
                         {{.Host}}
                     </a>
                     {{end}}

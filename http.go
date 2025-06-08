@@ -132,9 +132,9 @@ func getSeverityInfo(priority int) (string, string) {
 
 // handleMessages handles requests for the messages endpoint
 func handleMessages(w http.ResponseWriter, r *http.Request) {
-	hosts := r.URL.Query()["h"]
+	hosts := r.URL.Query()["hosts[]"]
 	page := 0
-	if pageStr := r.URL.Query().Get("p"); pageStr != "" {
+	if pageStr := r.URL.Query().Get("page"); pageStr != "" {
 		if p, err := strconv.Atoi(pageStr); err == nil && p > 0 {
 			page = p
 		}
