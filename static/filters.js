@@ -80,7 +80,7 @@ class Filters {
     init(grid) {
         this.grid = grid;
         const controls = document.getElementsByClassName('host-filter-item');
-        for(var i = 0; i < controls.length; ++i) {
+        for(let i = 0; i < controls.length; ++i) {
             const control = controls[i];
             this.register(control);
         }

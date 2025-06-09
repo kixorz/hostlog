@@ -17,7 +17,7 @@ class Pagination {
             link.addEventListener('click', (event) => {
                 event.preventDefault();
                 const page = event.target.getAttribute('data-page');
-                this.page = parseInt(page);
+                this.page = parseInt(page, 10);
                 this.grid.load();
             });
         });

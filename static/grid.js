@@ -35,6 +35,6 @@ class Grid {
 };
 
 const grid = new Grid();
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     grid.init();
 });
