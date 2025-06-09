@@ -1,16 +1,29 @@
 {{define "messages"}}
-{{if .Logs}}
-{{range .Logs}}
-<tr class="{{.Class}}">
-    <td>{{.Timestamp}}</td>
-    <td>{{.Source}}</td>
-    <td>{{.Severity}}</td>
-    <td class="message-cell" title="{{.Message}}">{{.Message}}</td>
-</tr>
-{{end}}
-{{else}}
-<tr>
-    <td colspan="4" class="has-text-centered">No logs found</td>
-</tr>
-{{end}}
-{{end}}
+<table class="table is-striped is-hoverable is-fullwidth">
+    <thead>
+    <tr>
+        <th>Timestamp</th>
+        <th>Source</th>
+        <th>Severity</th>
+        <th>Message</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{if .Logs}}
+    {{range .Logs}}
+    <tr class="{{.Class}}">
+        <td>{{.Timestamp}}</td>
+        <td>{{.Source}}</td>
+        <td>{{.Severity}}</td>
+        <td class="message-cell" title="{{.Message}}">{{.Message}}</td>
+    </tr>
+    {{end}}
+    {{else}}
+    <tr>
+        <td colspan="4" class="has-text-centered">No logs found</td>
+    </tr>
+    {{end}}
+    {{end}}
+    </tbody>
+</table>
+
