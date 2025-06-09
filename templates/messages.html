@@ -23,7 +23,21 @@
         <td colspan="4" class="has-text-centered">No logs found</td>
     </tr>
     {{end}}
-    {{end}}
     </tbody>
 </table>
 
+<nav class="pagination is-centered" role="navigation" aria-label="pagination">
+    <a class="pagination-previous" {{if eq .Page 0}}disabled{{end}} data-page="{{subtract .Page 1}}">Previous</a>
+    <a class="pagination-next" data-page="{{add .Page 1}}">Next</a>
+    <ul class="pagination-list">
+        {{if gt .Page 0}}
+        <li><a class="pagination-link" data-page="0">1</a></li>
+        {{if gt .Page 1}}
+        <li><span class="pagination-ellipsis">&hellip;</span></li>
+        {{end}}
+        {{end}}
+        <li><a class="pagination-link is-current" aria-current="page">{{add .Page 1}}</a></li>
+        <li><a class="pagination-link" data-page="{{add .Page 1}}">{{add .Page 2}}</a></li>
+    </ul>
+</nav>
+{{end}}

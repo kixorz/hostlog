@@ -3,6 +3,22 @@ class Filters {
     grid = null;
     values = new Set();
 
+    updateURL(url) {
+        const query = this.getQuery();
+        const params = Object.entries(query);
+        params.forEach((param) => {
+            const key = param[0];
+            const values = param[1];
+            if(Array.isArray(values)) {
+                values.forEach((value) => {
+                    url.searchParams.append(`${key}[]`, value);
+                });
+            } else {
+                url.searchParams.append(key, value);
+            }
+        });
+    };
+
     getQuery() {
         return {
             hosts: [...this.values]

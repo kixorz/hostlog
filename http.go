@@ -67,10 +67,12 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 	// Prepare data for template
 	data := struct {
 		Logs     []LogDisplay
+		Page     int
 		Hosts    []HostScore
 		TopHosts []HostScore
 	}{
 		Logs:     formatLogsForDisplay(logs),
+		Page:     0,
 		Hosts:    hostScores,
 		TopHosts: topHostScores,
 	}

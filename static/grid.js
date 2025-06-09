@@ -3,23 +3,15 @@ class Grid {
     grid = null
     path = ''
     filters = new Filters();
+    pagination = new Pagination();
 
     getURL() {
         const url = new URL(window.location);
         url.pathname = this.path;
-        const query = this.filters.getQuery();
-        const params = Object.entries(query);
-        params.forEach((param) => {
-            const key = param[0];
-            const values = param[1];
-            if(Array.isArray(values)) {
-                values.forEach((value) => {
-                    url.searchParams.append(`${key}[]`, value);
-                });
-            } else {
-                url.searchParams.append(key, value);
-            }
-        });
+
+        this.filters.updateURL(url);
+        this.pagination.updateURL(url);
+
         return url;
     }
 
@@ -29,6 +21,7 @@ class Grid {
             .then((response) => response.text())
             .then((text) => {
                 this.grid.innerHTML = text;
+                this.pagination.init(this);
             })
             .catch(error => console.error(error));
     };
@@ -37,6 +30,7 @@ class Grid {
         this.grid = document.getElementById('grid');
         this.path = this.grid.getAttribute('data-path');
         this.filters.init(this);
+        this.pagination.init(this);
     };
 };
 
