@@ -49,7 +49,7 @@ func StartHTTPServer(port string) {
 // handleIndex handles the main page request
 func handleIndex(w http.ResponseWriter, r *http.Request) {
 	// Get recent logs from database
-	logs, err := GetRecentLogs(100) // Get the 100 most recent logs
+	logs, maxPage, err := GetFilteredLogs([]string{}, 0) // Get the 100 most recent logs
 	if err != nil {
 		log.Printf("Error retrieving logs: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -68,11 +68,13 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 	data := struct {
 		Logs     []LogDisplay
 		Page     int
+		MaxPage  int
 		Hosts    []HostScore
 		TopHosts []HostScore
 	}{
 		Logs:     formatLogsForDisplay(logs),
 		Page:     0,
+		MaxPage:  maxPage,
 		Hosts:    hostScores,
 		TopHosts: topHostScores,
 	}
@@ -137,12 +139,12 @@ func handleMessages(w http.ResponseWriter, r *http.Request) {
 	hosts := r.URL.Query()["hosts[]"]
 	page := 0
 	if pageStr := r.URL.Query().Get("page"); pageStr != "" {
-		if p, err := strconv.Atoi(pageStr); err == nil && p > 0 {
+		if p, err := strconv.Atoi(pageStr); err == nil && p >= 0 {
 			page = p
 		}
 	}
 
-	logs, err := GetFilteredLogs(hosts, page)
+	logs, maxPage, err := GetFilteredLogs(hosts, page)
 	if err != nil {
 		log.Printf("Error retrieving logs: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -150,11 +152,13 @@ func handleMessages(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := struct {
-		Logs []LogDisplay
-		Page int
+		Logs    []LogDisplay
+		Page    int
+		MaxPage int
 	}{
-		Logs: formatLogsForDisplay(logs),
-		Page: page,
+		Logs:    formatLogsForDisplay(logs),
+		Page:    page,
+		MaxPage: maxPage,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

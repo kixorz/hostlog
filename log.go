@@ -137,15 +137,8 @@ func DeleteLogMaps(clientIP string) error {
 	return db.Where("client_ip = ?", clientIP).Delete(&LogMap{}).Error
 }
 
-// GetRecentLogs retrieves the most recent logs from the database
-func GetRecentLogs(limit int) ([]Log, error) {
-	var logs []Log
-	result := db.Order("created_at desc").Limit(limit).Find(&logs)
-	return logs, result.Error
-}
-
 // GetFilteredLogs retrieves logs with filtering and pagination
-func GetFilteredLogs(hosts []string, page int) ([]Log, error) {
+func GetFilteredLogs(hosts []string, page int) ([]Log, int, error) {
 	var logs []Log
 	query := db.Order("created_at desc")
 
@@ -154,9 +147,19 @@ func GetFilteredLogs(hosts []string, page int) ([]Log, error) {
 	}
 
 	limit := 100
-	offset := max(page, 0)
+	offset := max(page, 0) * limit
 	result := query.Offset(offset).Limit(limit).Find(&logs)
-	return logs, result.Error
+	if result.Error != nil {
+		return nil, 0, result.Error
+	}
+
+	var count int64
+	result = query.Count(&count)
+	if result.Error != nil {
+		return nil, 0, result.Error
+	}
+	maxPage := int((count+int64(limit)-1)/int64(limit) - 1)
+	return logs, maxPage, result.Error
 }
 
 // GetUniqueClientIPs retrieves a list of unique client IPs from the database
