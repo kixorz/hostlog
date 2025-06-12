@@ -71,7 +71,7 @@ class Filters {
             this.values.clear()
         }
         this.update();
-    }
+    };
 
     register(control) {
         control.addEventListener('click', (event) => this.toggleHandler(event));

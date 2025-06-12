@@ -1,7 +1,7 @@
 class Grid {
     name = 'Grid';
-    grid = null
-    path = ''
+    grid = null;
+    path = '';
     filters = new Filters();
     pagination = new Pagination();
 
@@ -13,7 +13,7 @@ class Grid {
         this.pagination.updateURL(url);
 
         return url;
-    }
+    };
 
     load() {
         const url = this.getURL();
