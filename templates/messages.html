@@ -12,7 +12,7 @@
     {{if .Logs}}
     {{range .Logs}}
     <tr class="{{.Class}}">
-        <td>{{.Timestamp}}</td>
+        <td class="timestamp-cell">{{.Timestamp}}</td>
         <td>{{.Source}}</td>
         <td>{{.Severity}}</td>
         <td class="message-cell" title="{{.Message}}">{{.Message}}</td>

@@ -19,11 +19,13 @@
             display: block;
         }
 
+        .timestamp-cell {
+            white-space: nowrap;
+        }
+
         /* Message cell styling */
         .message-cell {
-            max-width: 300px;
             white-space: normal;
-            word-wrap: break-word;
             position: relative;
             padding: 0.5em;
             line-height: 1.2;
@@ -67,17 +69,7 @@
 <body>
     <section class="section">
         <div class="container">
-            <h1 class="title is-1 has-text-centered">
-                AkLog
-            </h1>
-            <h2 class="subtitle has-text-centered">
-                A simple syslog server that stores logs in a SQLite database
-            </h2>
             <div class="box">
-                <p class="has-text-centered">
-                    This server is currently listening for syslog messages on UDP port 514.
-                </p>
-
                 <!-- Tabs -->
                 <div class="tabs is-centered">
                     <ul>
