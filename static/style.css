@@ -1,0 +1,55 @@
+/* Tab styling */
+/* Hide all tabs by default */
+.tab-content {
+    display: none;
+}
+/* Show the first tab by default */
+#tab1 {
+    display: block;
+}
+
+.timestamp-cell {
+    white-space: nowrap;
+}
+
+/* Message cell styling */
+.message-cell {
+    white-space: normal;
+    position: relative;
+    padding: 0.5em;
+    line-height: 1.2;
+}
+.message-cell:hover {
+    cursor: pointer;
+}
+
+/* Severity styling */
+.severity-error {
+    background-color: #ffebee !important; /* Light red */
+}
+.severity-warning {
+    background-color: #fff8e1 !important; /* Light yellow */
+}
+.severity-info {
+    background-color: #e3f2fd !important; /* Light blue */
+}
+.severity-debug {
+    background-color: #f1f8e9 !important; /* Light green */
+}
+/* Override striped table styling */
+.table.is-striped tr.severity-error:nth-child(even),
+.table.is-striped tr.severity-warning:nth-child(even),
+.table.is-striped tr.severity-info:nth-child(even),
+.table.is-striped tr.severity-debug:nth-child(even) {
+    background-color: inherit;
+}
+
+/* Host filter styling */
+#host-filter-dropdown .dropdown-content {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+#active-host-filters .tags {
+    flex-wrap: wrap;
+}
