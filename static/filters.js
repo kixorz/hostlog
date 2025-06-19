@@ -68,7 +68,7 @@ class Filters {
         if(value.length) {
             this.toggle(value);
         } else {
-            this.values.clear()
+            this.values.clear();
         }
         this.update();
     };

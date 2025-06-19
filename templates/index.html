@@ -5,66 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>aklog - syslog server</title>
     <link rel="stylesheet" href="/static/bulma.min.css">
+    <link rel="stylesheet" href="/static/style.css">
     <script src="/static/pagination.js" type="text/javascript"></script>
     <script src="/static/filters.js" type="text/javascript"></script>
     <script src="/static/grid.js" type="text/javascript"></script>
-    <style>
-        /* Tab styling */
-        /* Hide all tabs by default */
-        .tab-content {
-            display: none;
-        }
-        /* Show the first tab by default */
-        #tab1 {
-            display: block;
-        }
-
-        .timestamp-cell {
-            white-space: nowrap;
-        }
-
-        /* Message cell styling */
-        .message-cell {
-            white-space: normal;
-            position: relative;
-            padding: 0.5em;
-            line-height: 1.2;
-        }
-        .message-cell:hover {
-            cursor: pointer;
-        }
-
-        /* Severity styling */
-        .severity-error {
-            background-color: #ffebee !important; /* Light red */
-        }
-        .severity-warning {
-            background-color: #fff8e1 !important; /* Light yellow */
-        }
-        .severity-info {
-            background-color: #e3f2fd !important; /* Light blue */
-        }
-        .severity-debug {
-            background-color: #f1f8e9 !important; /* Light green */
-        }
-        /* Override striped table styling */
-        .table.is-striped tr.severity-error:nth-child(even),
-        .table.is-striped tr.severity-warning:nth-child(even),
-        .table.is-striped tr.severity-info:nth-child(even),
-        .table.is-striped tr.severity-debug:nth-child(even) {
-            background-color: inherit;
-        }
-
-        /* Host filter styling */
-        #host-filter-dropdown .dropdown-content {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        #active-host-filters .tags {
-            flex-wrap: wrap;
-        }
-    </style>
 </head>
 <body>
     <section class="section">
@@ -77,22 +21,20 @@
                         <li><a href="#tab2" class="tab-link" data-tab="tab2">Config</a></li>
                     </ul>
                 </div>
-
                 <!-- Tab Contents -->
                 {{template "logs" .}}
                 {{template "config" .}}
             </div>
         </div>
     </section>
-
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add click event to tab links
+        document.addEventListener('DOMContentLoaded', () => {
+            // tabs
             const tabLinks = document.querySelectorAll('.tab-link');
             const tabContents = document.querySelectorAll('.tab-content');
 
             tabLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
+                link.addEventListener('click', (e) => {
                     e.preventDefault();
 
                     // Get the tab ID from the data-tab attribute
@@ -108,107 +50,17 @@
                 });
             });
 
-            // Host filter functionality
-            const hostFilterDropdown = document.getElementById('host-filter-dropdown');
-            const hostFilterItems = document.querySelectorAll('.host-filter-item');
-            const activeHostFilters = document.getElementById('active-host-filters');
-            const logRows = document.querySelectorAll('tbody tr');
-
-            // Set of active filters
-            let activeFilters = new Set();
-
-            // Toggle dropdown
-            if (hostFilterDropdown) {
-                hostFilterDropdown.querySelector('.dropdown-trigger button').addEventListener('click', function() {
-                    hostFilterDropdown.classList.toggle('is-active');
+            // dropdown
+            const filterDropdown = document.getElementById('host-filter-dropdown');
+            if (filterDropdown) {
+                filterDropdown.querySelector('.dropdown-trigger button').addEventListener('click', () => {
+                    filterDropdown.classList.toggle('is-active');
                 });
-
-                // Close dropdown when clicking outside
-                document.addEventListener('click', function(e) {
-                    if (!hostFilterDropdown.contains(e.target)) {
-                        hostFilterDropdown.classList.remove('is-active');
+                document.addEventListener('click', (e) => {
+                    if (filterDropdown.contains(e.target)) {
+                        return;
                     }
-                });
-            }
-
-            // Handle filter item clicks
-            if (hostFilterItems) {
-                hostFilterItems.forEach(item => {
-                    item.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const ip = this.getAttribute('data-ip');
-
-                        // Close the dropdown
-                        hostFilterDropdown.classList.remove('is-active');
-
-                        if (ip === 'all') {
-                            // Clear all filters
-                            activeFilters.clear();
-                            //updateActiveFiltersDisplay();
-                            applyFilters();
-                            return;
-                        }
-
-                        // Toggle the filter
-                        if (activeFilters.has(ip)) {
-                            activeFilters.delete(ip);
-                        } else {
-                            activeFilters.add(ip);
-                        }
-
-                        //updateActiveFiltersDisplay();
-                        applyFilters();
-                    });
-                });
-            }
-/*
-            // Update the active filters display
-            function updateActiveFiltersDisplay() {
-                // Clear existing tags
-                const tagsContainer = activeHostFilters.querySelector('.tags');
-                while (tagsContainer.children.length > 1) {
-                    tagsContainer.removeChild(tagsContainer.lastChild);
-                }
-
-                // Show/hide the active filters section
-                if (activeFilters.size > 0) {
-                    activeHostFilters.style.display = 'block';
-
-                    // Add new tags
-                    activeFilters.forEach(ip => {
-                        const tag = document.createElement('span');
-                        tag.className = 'tag is-info';
-                        tag.textContent = ip;
-
-                        const deleteBtn = document.createElement('button');
-                        deleteBtn.className = 'delete is-small';
-                        deleteBtn.addEventListener('click', function() {
-                            activeFilters.delete(ip);
-                            updateActiveFiltersDisplay();
-                            applyFilters();
-                        });
-
-                        tag.appendChild(deleteBtn);
-                        tagsContainer.appendChild(tag);
-                    });
-                } else {
-                    activeHostFilters.style.display = 'none';
-                }
-            }
-*/
-            // Apply filters to the log rows
-            function applyFilters() {
-                logRows.forEach(row => {
-                    const sourceCell = row.querySelector('td:nth-child(2)');
-                    if (!sourceCell) return;
-
-                    const ip = sourceCell.textContent.trim();
-
-                    if (activeFilters.size === 0 || activeFilters.has(ip)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
+                    filterDropdown.classList.remove('is-active');
                 });
             }
         });
