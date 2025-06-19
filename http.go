@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+
+	"aklog/models"
 )
 
 // Templates for HTML rendering
@@ -97,7 +99,7 @@ type LogDisplay struct {
 }
 
 // formatLogsForDisplay converts database logs to display format
-func formatLogsForDisplay(logs []Log) []LogDisplay {
+func formatLogsForDisplay(logs []models.Log) []LogDisplay {
 	var displayLogs []LogDisplay
 
 	for _, log := range logs {

@@ -9,6 +9,8 @@ import (
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+
+	"aklog/models"
 )
 
 // setupTestDBFromCSV creates a temporary test database for CSV-based tests
@@ -27,7 +29,7 @@ func setupTestDBFromCSV(t *testing.T) (*gorm.DB, func()) {
 	}
 
 	// Migrate the schema
-	err = testDB.AutoMigrate(&Log{})
+	err = testDB.AutoMigrate(&models.Log{})
 	if err != nil {
 		t.Fatalf("Failed to migrate schema: %v", err)
 	}
@@ -102,7 +104,7 @@ func loadTestLogsFromCSV(t *testing.T, testDB *gorm.DB, csvFilePath string) {
 		timestamp := now.Add(time.Duration(offsetMinutes) * time.Minute)
 
 		// Create and insert the log
-		log := Log{
+		log := models.Log{
 			ClientIP:  record[0],
 			Hostname:  record[1],
 			Content:   record[2],
@@ -339,7 +341,7 @@ func TestGetAllHostScoresCSV(t *testing.T) {
 
 	// First, find the most recent and oldest timestamps
 	for host := range scores {
-		var log Log
+		var log models.Log
 		result := db.Where("client_ip = ?", host).Order("timestamp desc").First(&log)
 		if result.Error != nil {
 			continue
@@ -364,7 +366,7 @@ func TestGetAllHostScoresCSV(t *testing.T) {
 	oldThreshold := oldTimestamp.Add(24 * time.Hour)
 
 	for host := range scores {
-		var log Log
+		var log models.Log
 		result := db.Where("client_ip = ?", host).Order("timestamp desc").First(&log)
 		if result.Error != nil {
 			continue

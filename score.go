@@ -5,6 +5,8 @@ import (
 	"math"
 	"sort"
 	"time"
+
+	"aklog/models"
 )
 
 // VisibilityScore calculates a visibility score for a host based on its log events
@@ -55,7 +57,7 @@ func VisibilityScore(host string) (float64, error) {
 // Where T is the time since the most recent event in hours
 func TimeDecayComponent(host string, alpha, lambda float64) (float64, error) {
 	// Get the most recent log for this host
-	var log Log
+	var log models.Log
 	result := db.Where("client_ip = ?", host).Order("created_at desc").First(&log)
 	if result.Error != nil {
 		return 0, result.Error
@@ -77,7 +79,7 @@ func VolumeComponent(host string, beta float64) (float64, error) {
 
 	// Count logs in the last hour
 	var count int64
-	result := db.Model(&Log{}).Where("client_ip = ? AND timestamp > ?", host, oneHourAgo).Count(&count)
+	result := db.Model(&models.Log{}).Where("client_ip = ? AND timestamp > ?", host, oneHourAgo).Count(&count)
 	if result.Error != nil {
 		return 0, result.Error
 	}
@@ -101,7 +103,7 @@ func SeverityComponent(host string, gamma float64) (float64, error) {
 	timeWindow := time.Now().Add(-24 * time.Hour)
 
 	// Get logs within the time window
-	var logs []Log
+	var logs []models.Log
 	result := db.Where("client_ip = ? AND timestamp > ?", host, timeWindow).Find(&logs)
 	if result.Error != nil {
 		return 0, result.Error
@@ -145,7 +147,7 @@ func SeverityComponent(host string, gamma float64) (float64, error) {
 
 func GetAllHosts() ([]string, error) {
 	var hosts []string
-	result := db.Model(&Log{}).Distinct("client_ip").Pluck("client_ip", &hosts)
+	result := db.Model(&models.Log{}).Distinct("client_ip").Pluck("client_ip", &hosts)
 	return hosts, result.Error
 }
 
