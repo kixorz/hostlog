@@ -1,6 +1,7 @@
 package main
 
 import (
+	"aklog/models"
 	"embed"
 	"fmt"
 	"gopkg.in/mcuadros/go-syslog.v2"
@@ -11,7 +12,7 @@ import (
 var staticFiles embed.FS
 
 func main() {
-	_, err := InitDB()
+	_, err := models.InitDB()
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
@@ -35,7 +36,7 @@ func main() {
 	go func(channel syslog.LogPartsChannel) {
 		for logParts := range channel {
 			// Save log message to database
-			if err := SaveLog(logParts); err != nil {
+			if err := models.SaveLog(logParts); err != nil {
 				log.Printf("Error saving log: %v", err)
 			} else {
 				// Print a brief confirmation (optional)

@@ -56,11 +56,9 @@ func VisibilityScore(host string) (float64, error) {
 // Formula: α * e^(-λ * T)
 // Where T is the time since the most recent event in hours
 func TimeDecayComponent(host string, alpha, lambda float64) (float64, error) {
-	// Get the most recent log for this host
-	var log models.Log
-	result := db.Where("client_ip = ?", host).Order("created_at desc").First(&log)
-	if result.Error != nil {
-		return 0, result.Error
+	log, err := models.GetFirst(host)
+	if err != nil {
+		return 0, err
 	}
 
 	// Calculate hours since the most recent event
@@ -79,9 +77,9 @@ func VolumeComponent(host string, beta float64) (float64, error) {
 
 	// Count logs in the last hour
 	var count int64
-	result := db.Model(&models.Log{}).Where("client_ip = ? AND timestamp > ?", host, oneHourAgo).Count(&count)
-	if result.Error != nil {
-		return 0, result.Error
+	count, err := models.GetCount(host, oneHourAgo)
+	if err != nil {
+		return 0, err
 	}
 
 	// Calculate volume component
@@ -99,14 +97,10 @@ func VolumeComponent(host string, beta float64) (float64, error) {
 // Formula: γ * S
 // Where S is a weighted average of event severities
 func SeverityComponent(host string, gamma float64) (float64, error) {
-	// Define time window for severity calculation (e.g., last 24 hours)
 	timeWindow := time.Now().Add(-24 * time.Hour)
-
-	// Get logs within the time window
-	var logs []models.Log
-	result := db.Where("client_ip = ? AND timestamp > ?", host, timeWindow).Find(&logs)
-	if result.Error != nil {
-		return 0, result.Error
+	logs, err := models.GetLogs(host, timeWindow)
+	if err != nil {
+		return 0, err
 	}
 
 	if len(logs) == 0 {
@@ -145,12 +139,6 @@ func SeverityComponent(host string, gamma float64) (float64, error) {
 	return gamma * severityScore, nil
 }
 
-func GetAllHosts() ([]string, error) {
-	var hosts []string
-	result := db.Model(&models.Log{}).Distinct("client_ip").Pluck("client_ip", &hosts)
-	return hosts, result.Error
-}
-
 // HostScore represents a host and its visibility score
 type HostScore struct {
 	Host  string
@@ -160,7 +148,7 @@ type HostScore struct {
 // GetAllHostScores calculates visibility scores for all hosts
 // Returns a list of host-score pairs
 func GetAllHostScores() ([]HostScore, error) {
-	hosts, err := GetAllHosts()
+	hosts, err := models.GetAllHosts()
 	if err != nil {
 		return nil, err
 	}

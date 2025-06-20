@@ -28,6 +28,7 @@ func SetupHTTP(staticFiles embed.FS) {
 	// Set up routes
 	http.HandleFunc("/", handleIndex)
 	http.HandleFunc("/messages", handleMessages)
+	http.HandleFunc("/fields", handleFields)
 	http.Handle("/static/", http.StripPrefix("/static/", fileServer))
 
 	// Create template functions map
@@ -51,7 +52,7 @@ func StartHTTPServer(port string) {
 // handleIndex handles the main page request
 func handleIndex(w http.ResponseWriter, r *http.Request) {
 	// Get recent logs from database
-	logs, maxPage, err := GetFilteredLogs([]string{}, 0) // Get the 100 most recent logs
+	logs, maxPage, err := models.GetFilteredLogs([]string{}, 0) // Get the 100 most recent logs
 	if err != nil {
 		log.Printf("Error retrieving logs: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -146,7 +147,7 @@ func handleMessages(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	logs, maxPage, err := GetFilteredLogs(hosts, page)
+	logs, maxPage, err := models.GetFilteredLogs(hosts, page)
 	if err != nil {
 		log.Printf("Error retrieving logs: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -170,4 +171,36 @@ func handleMessages(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error rendering template: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
+}
+
+// handleFields handles requests for the fields endpoint
+func handleFields(w http.ResponseWriter, r *http.Request) {
+	clientIP := r.URL.Query().Get("clientIP")
+	if clientIP == "" {
+		http.Error(w, "Missing clientIP parameter", http.StatusBadRequest)
+		return
+	}
+
+	fields, err := models.GetLogFieldsByClientIP(clientIP)
+	if err != nil {
+		log.Printf("Error retrieving fields: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// Set content type to JSON
+	w.Header().Set("Content-Type", "application/json")
+
+	// Create a simple JSON response
+	w.Write([]byte("{\n  \"fields\": [\n"))
+
+	for i, field := range fields {
+		comma := ","
+		if i == len(fields)-1 {
+			comma = ""
+		}
+		w.Write([]byte("    {\"name\": \"" + field.FieldName + "\", \"count\": " + strconv.Itoa(field.Count) + "}" + comma + "\n"))
+	}
+
+	w.Write([]byte("  ]\n}"))
 }

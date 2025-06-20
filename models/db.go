@@ -1,12 +1,10 @@
-package main
+package models
 
 import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"net"
 	"time"
-
-	"aklog/models"
 )
 
 var db *gorm.DB
@@ -18,7 +16,7 @@ func InitDB() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	db.AutoMigrate(&models.Log{}, &models.LogTemplate{})
+	db.AutoMigrate(&Log{}, &LogTemplate{}, &LogField{})
 
 	return db, nil
 }
@@ -26,7 +24,7 @@ func InitDB() (*gorm.DB, error) {
 func SaveLog(logParts map[string]interface{}) error {
 	clientString := GetStringValue(logParts, "client")
 	clientIP := ExtractIP(clientString)
-	log := models.Log{
+	log := Log{
 		ClientIP: clientIP,
 	}
 
@@ -47,6 +45,9 @@ func SaveLog(logParts map[string]interface{}) error {
 		log.Priority = GetIntValue(logParts, "priority")
 		log.Timestamp = GetTimeValue(logParts, "timestamp")
 	}
+
+	go SaveLogFields(clientIP, logParts)
+
 	return db.Create(&log).Error
 }
 
@@ -85,8 +86,8 @@ func GetIntValue(logParts map[string]interface{}, key string) int {
 	return 0
 }
 
-func GetLogMapsByClientIP(clientIP string) (*models.LogTemplate, error) {
-	var logMaps models.LogTemplate
+func GetLogMapsByClientIP(clientIP string) (*LogTemplate, error) {
+	var logMaps LogTemplate
 	result := db.Where("client_ip = ?", clientIP).First(&logMaps)
 	if result.Error != nil {
 		return nil, result.Error
@@ -94,8 +95,8 @@ func GetLogMapsByClientIP(clientIP string) (*models.LogTemplate, error) {
 	return &logMaps, nil
 }
 
-func GetFilteredLogs(hosts []string, page int) ([]models.Log, int, error) {
-	var logs []models.Log
+func GetFilteredLogs(hosts []string, page int) ([]Log, int, error) {
+	var logs []Log
 	query := db.Order("created_at desc")
 
 	if len(hosts) > 0 {
