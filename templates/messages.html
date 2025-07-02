@@ -30,20 +30,7 @@
     <a class="pagination-previous" {{if eq .Page 0}}disabled{{end}} data-page="{{subtract .Page 1}}">Previous</a>
     <a class="pagination-next" {{if ge .Page .MaxPage}}disabled{{end}} data-page="{{add .Page 1}}">Next</a>
     <ul class="pagination-list">
-        {{if gt .Page 0}}
-        <li><a class="pagination-link" data-page="0">1</a></li>
-        {{if gt .Page 1}}
-        <li><span class="pagination-ellipsis">&hellip;</span></li>
-        {{end}}
-        {{end}}
         <li><a class="pagination-link is-current" data-page="{{.Page}}">{{add .Page 1}}</a></li>
-        {{if lt (add .Page 1) .MaxPage}}
-        <li><a class="pagination-link" data-page="{{add .Page 1}}">{{add .Page 2}}</a></li>
-        {{if lt (add .Page 2) .MaxPage}}
-        <li><span class="pagination-ellipsis">&hellip;</span></li>
-        <li><a class="pagination-link" data-page="{{.MaxPage}}">{{add .MaxPage 1}}</a></li>
-        {{end}}
-        {{end}}
     </ul>
 </nav>
 {{end}}
