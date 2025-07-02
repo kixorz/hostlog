@@ -4,14 +4,25 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"net"
+	"os"
 	"time"
 )
 
 var db *gorm.DB
+var DBPath string
+
+// DefaultDBPath is the default path for the SQLite database file
+const DefaultDBPath = "logs.db"
 
 func InitDB() (*gorm.DB, error) {
+	// Check if DB path is provided via environment variable
+	DBPath = os.Getenv("AKLOG_DB_PATH")
+	if DBPath == "" {
+		DBPath = DefaultDBPath
+	}
+
 	var err error
-	db, err = gorm.Open(sqlite.Open("logs.db"), &gorm.Config{})
+	db, err = gorm.Open(sqlite.Open(DBPath), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}

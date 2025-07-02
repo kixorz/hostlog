@@ -69,12 +69,14 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 
 	// Prepare data for template
 	data := struct {
+		DBPath   string
 		Logs     []LogDisplay
 		Page     int
 		MaxPage  int
 		Hosts    []HostScore
 		TopHosts []HostScore
 	}{
+		DBPath:   models.DBPath,
 		Logs:     formatLogsForDisplay(logs),
 		Page:     0,
 		MaxPage:  maxPage,
