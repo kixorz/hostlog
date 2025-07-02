@@ -84,5 +84,16 @@ class Filters {
             const control = controls[i];
             this.register(control);
         }
+
+        const dropdown = document.getElementById('host-filter-dropdown');
+        dropdown.querySelector('.dropdown-trigger button').addEventListener('click', () => {
+            dropdown.classList.toggle('is-active');
+        });
+        document.addEventListener('click', (e) => {
+            if (dropdown.contains(e.target)) {
+                return;
+            }
+            dropdown.classList.remove('is-active');
+        });
     };
 };
