@@ -29,7 +29,6 @@
     </section>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // tabs
             const tabLinks = document.querySelectorAll('.tab-link');
             const tabContents = document.querySelectorAll('.tab-content');
 
@@ -37,15 +36,11 @@
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
 
-                    // Get the tab ID from the data-tab attribute
-                    const tabId = this.getAttribute('data-tab');
-
-                    // Hide all tab contents
                     tabContents.forEach(content => {
                         content.style.display = 'none';
                     });
 
-                    // Show the selected tab content
+                    const tabId = e.target.getAttribute('data-tab');
                     document.getElementById(tabId).style.display = 'block';
                 });
             });
