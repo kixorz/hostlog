@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 	"net"
 	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -21,13 +22,18 @@ func InitDB() (*gorm.DB, error) {
 		DBPath = DefaultDBPath
 	}
 
-	var err error
+	// Convert to absolute path
+	absPath, err := filepath.Abs(DBPath)
+	if err == nil {
+		DBPath = absPath
+	}
+
 	db, err = gorm.Open(sqlite.Open(DBPath), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
 
-	db.AutoMigrate(&Log{}, &LogTemplate{}, &LogField{})
+	db.AutoMigrate(&Log{}, &LogField{})
 
 	return db, nil
 }
@@ -39,23 +45,10 @@ func SaveLog(logParts map[string]interface{}) error {
 		ClientIP: clientIP,
 	}
 
-	// Try to find a LogTemplate configuration for this client IP (without port)
-	logMaps, err := GetLogMapsByClientIP(clientIP)
-
-	// If we found a mapping configuration, use it
-	if err == nil && logMaps != nil {
-		// Use the custom field mappings
-		log.Hostname = GetStringValue(logParts, logMaps.HostnameField)
-		log.Content = GetStringValue(logParts, logMaps.ContentField)
-		log.Priority = GetIntValue(logParts, logMaps.PriorityField)
-		log.Timestamp = GetTimeValue(logParts, logMaps.TimestampField)
-	} else {
-		// Fall back to default field mappings
-		log.Hostname = GetStringValue(logParts, "hostname")
-		log.Content = GetStringValue(logParts, "content")
-		log.Priority = GetIntValue(logParts, "priority")
-		log.Timestamp = GetTimeValue(logParts, "timestamp")
-	}
+	log.Hostname = GetStringValue(logParts, "hostname")
+	log.Content = GetStringValue(logParts, "content")
+	log.Priority = GetIntValue(logParts, "priority")
+	log.Timestamp = GetTimeValue(logParts, "timestamp")
 
 	go SaveLogFields(clientIP, logParts)
 
@@ -95,15 +88,6 @@ func GetIntValue(logParts map[string]interface{}, key string) int {
 		}
 	}
 	return 0
-}
-
-func GetLogMapsByClientIP(clientIP string) (*LogTemplate, error) {
-	var logMaps LogTemplate
-	result := db.Where("client_ip = ?", clientIP).First(&logMaps)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return &logMaps, nil
 }
 
 func GetFilteredLogs(hosts []string, page int) ([]Log, int, error) {
