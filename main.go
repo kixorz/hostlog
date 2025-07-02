@@ -1,10 +1,10 @@
 package main
 
 import (
-	"aklog/models"
 	"embed"
 	"fmt"
 	"gopkg.in/mcuadros/go-syslog.v2"
+	"hostlog/models"
 	"log"
 )
 

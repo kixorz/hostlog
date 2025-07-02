@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"aklog/models"
+	"hostlog/models"
 )
 
 // Templates for HTML rendering

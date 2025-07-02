@@ -17,7 +17,7 @@ const DefaultDBPath = "logs.db"
 
 func InitDB() (*gorm.DB, error) {
 	// Check if DB path is provided via environment variable
-	DBPath = os.Getenv("AKLOG_DB_PATH")
+	DBPath = os.Getenv("HOSTLOG_DB_PATH")
 	if DBPath == "" {
 		DBPath = DefaultDBPath
 	}

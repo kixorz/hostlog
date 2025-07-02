@@ -10,7 +10,7 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
-	"aklog/models"
+	"hostlog/models"
 )
 
 // setupTestDBFromCSV creates a temporary test database for CSV-based tests

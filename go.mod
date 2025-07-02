@@ -1,4 +1,4 @@
-module aklog
+module hostlog
 
 go 1.24
 

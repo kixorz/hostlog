@@ -6,7 +6,7 @@ import (
 	"sort"
 	"time"
 
-	"aklog/models"
+	"hostlog/models"
 )
 
 // VisibilityScore calculates a visibility score for a host based on its log events
