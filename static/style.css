@@ -18,6 +18,10 @@
     position: relative;
     padding: 0.5em;
     line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    word-break: break-word;
 }
 .message-cell:hover {
     cursor: pointer;
