@@ -52,8 +52,7 @@ func main() {
 	}(channel)
 
 	// Set up and start HTTP server
-	SetupHTTP(staticFiles)
-	go StartHTTPServer("8080")
+	go StartHTTPServer("8080", staticFiles)
 
 	server.Wait()
 }

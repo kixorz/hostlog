@@ -16,8 +16,11 @@ import (
 // Templates for HTML rendering
 var templates *template.Template
 
-// SetupHTTP initializes the HTTP server with static files and dynamic routes
-func SetupHTTP(staticFiles embed.FS) {
+// StartHTTPServer initializes and starts the HTTP server with static files and dynamic routes
+func StartHTTPServer(port string, staticFiles embed.FS) {
+	// Create a new ServeMux
+	mux := http.NewServeMux()
+
 	// Set up static file serving
 	staticContent, err := fs.Sub(staticFiles, "static")
 	if err != nil {
@@ -27,15 +30,24 @@ func SetupHTTP(staticFiles embed.FS) {
 	// Create file server handler for static files
 	fileServer := http.FileServer(http.FS(staticContent))
 
-	// Set up routes
-	http.HandleFunc("/", handleIndex)
-	http.HandleFunc("/messages", handleMessages)
-	http.Handle("/static/", http.StripPrefix("/static/", fileServer))
+	// Set up routes on our mux
+	mux.HandleFunc("/", handleIndex)
+	mux.HandleFunc("/messages", handleMessages)
+	mux.Handle("/static/", http.StripPrefix("/static/", fileServer))
+
+	// Create the HTTP server
+	srv := &http.Server{
+		Addr:    ":" + port,
+		Handler: mux,
+	}
 
 	// Register MCP endpoint
 	mcpServer := NewMCPServer()
-	sse := server.NewSSEServer(mcpServer)
-	http.Handle("/mcp/", sse)
+	sse := server.NewSSEServer(mcpServer,
+		server.WithHTTPServer(srv),
+		server.WithStaticBasePath("/mcp"),
+	)
+	mux.Handle("/mcp/", sse)
 
 	// Create template functions map
 	funcMap := template.FuncMap{
@@ -45,12 +57,9 @@ func SetupHTTP(staticFiles embed.FS) {
 
 	// Parse templates with functions
 	templates = template.Must(template.New("").Funcs(funcMap).ParseFS(staticFiles, "templates/*.html"))
-}
 
-// StartHTTPServer starts the HTTP server on the specified port
-func StartHTTPServer(port string) {
 	log.Printf("Web server started. Listening on HTTP port %s...", port)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
+	if err := sse.Start(":" + port); err != nil {
 		log.Fatalf("Failed to start HTTP server: %v", err)
 	}
 }
