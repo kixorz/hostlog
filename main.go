@@ -2,19 +2,29 @@ package main
 
 import (
 	"embed"
+	"flag"
 	"fmt"
-	"gopkg.in/mcuadros/go-syslog.v2"
 	"hostlog/models"
 	"log"
+
+	"gopkg.in/mcuadros/go-syslog.v2"
 )
 
 //go:embed static/* templates/*
 var staticFiles embed.FS
 
 func main() {
+	mcpMode := flag.Bool("mcp", false, "Run in MCP mode (stdio)")
+	flag.Parse()
+
 	_, err := models.InitDB()
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
+	}
+
+	if *mcpMode {
+		ServeMCP()
+		return
 	}
 
 	// Set up syslog server

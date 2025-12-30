@@ -14,24 +14,24 @@ type LogField struct {
 func SaveLogFields(clientIP string, logParts map[string]interface{}) {
 	for fieldName := range logParts {
 		var logField LogField
-		result := db.Where("client_ip = ? AND field_name = ?", clientIP, fieldName).First(&logField)
+		result := DB.Where("client_ip = ? AND field_name = ?", clientIP, fieldName).First(&logField)
 		if result.Error != nil {
 			logField = LogField{
 				ClientIP:  clientIP,
 				FieldName: fieldName,
 				Count:     1,
 			}
-			db.Create(&logField)
+			DB.Create(&logField)
 		} else {
 			logField.Count++
-			db.Save(&logField)
+			DB.Save(&logField)
 		}
 	}
 }
 
 func GetLogFieldsByClientIP(clientIP string) ([]LogField, error) {
 	var logFields []LogField
-	result := db.Where("client_ip = ?", clientIP).Order("count desc").Find(&logFields)
+	result := DB.Where("client_ip = ?", clientIP).Order("count desc").Find(&logFields)
 	if result.Error != nil {
 		return nil, result.Error
 	}

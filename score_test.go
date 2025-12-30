@@ -35,7 +35,7 @@ func setupTestDBFromCSV(t *testing.T) (*gorm.DB, func()) {
 	}
 
 	// Set the global db variable to our test database
-	models.db = testDB
+	models.DB = testDB
 
 	// Return a cleanup function
 	cleanup := func() {
@@ -126,7 +126,7 @@ func TestTimeDecayComponentCSV(t *testing.T) {
 	defer cleanup()
 
 	// Load test logs from CSV
-	loadTestLogsFromCSV(t, models.db, "testdata/time_decay_test.csv")
+	loadTestLogsFromCSV(t, models.DB, "testdata/time_decay_test.csv")
 
 	// Test parameters
 	alpha := 10.0
@@ -172,7 +172,7 @@ func TestVolumeComponentCSV(t *testing.T) {
 	defer cleanup()
 
 	// Load test logs from CSV
-	loadTestLogsFromCSV(t, models.db, "testdata/volume_test.csv")
+	loadTestLogsFromCSV(t, models.DB, "testdata/volume_test.csv")
 
 	// Test parameter
 	beta := 0.5
@@ -212,7 +212,7 @@ func TestSeverityComponentCSV(t *testing.T) {
 	defer cleanup()
 
 	// Load test logs from CSV
-	loadTestLogsFromCSV(t, models.db, "testdata/severity_test.csv")
+	loadTestLogsFromCSV(t, models.DB, "testdata/severity_test.csv")
 
 	// Test parameter
 	gamma := 5.0
@@ -253,7 +253,7 @@ func TestVisibilityScoreCSV(t *testing.T) {
 	defer cleanup()
 
 	// Load test logs from CSV
-	loadTestLogsFromCSV(t, models.db, "testdata/visibility_test.csv")
+	loadTestLogsFromCSV(t, models.DB, "testdata/visibility_test.csv")
 
 	// Test hosts with different characteristics
 	hosts := []string{
@@ -300,7 +300,7 @@ func TestGetAllHostScoresCSV(t *testing.T) {
 	defer cleanup()
 
 	// Load test logs from CSV
-	loadTestLogsFromCSV(t, models.db, "testdata/all_hosts_test.csv")
+	loadTestLogsFromCSV(t, models.DB, "testdata/all_hosts_test.csv")
 
 	// Call the function being tested
 	hostScorePairs, err := GetAllHostScores()
@@ -342,7 +342,7 @@ func TestGetAllHostScoresCSV(t *testing.T) {
 	// First, find the most recent and oldest timestamps
 	for host := range scores {
 		var log models.Log
-		result := models.db.Where("client_ip = ?", host).Order("timestamp desc").First(&log)
+		result := models.DB.Where("client_ip = ?", host).Order("timestamp desc").First(&log)
 		if result.Error != nil {
 			continue
 		}
@@ -351,7 +351,7 @@ func TestGetAllHostScoresCSV(t *testing.T) {
 			recentTimestamp = log.Timestamp
 		}
 
-		result = models.db.Where("client_ip = ?", host).Order("timestamp asc").First(&log)
+		result = models.DB.Where("client_ip = ?", host).Order("timestamp asc").First(&log)
 		if result.Error != nil {
 			continue
 		}
@@ -367,7 +367,7 @@ func TestGetAllHostScoresCSV(t *testing.T) {
 
 	for host := range scores {
 		var log models.Log
-		result := models.db.Where("client_ip = ?", host).Order("timestamp desc").First(&log)
+		result := models.DB.Where("client_ip = ?", host).Order("timestamp desc").First(&log)
 		if result.Error != nil {
 			continue
 		}
@@ -376,7 +376,7 @@ func TestGetAllHostScoresCSV(t *testing.T) {
 			recentHosts = append(recentHosts, host)
 		}
 
-		result = models.db.Where("client_ip = ?", host).Order("timestamp asc").First(&log)
+		result = models.DB.Where("client_ip = ?", host).Order("timestamp asc").First(&log)
 		if result.Error != nil {
 			continue
 		}
