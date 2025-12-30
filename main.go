@@ -2,7 +2,6 @@ package main
 
 import (
 	"embed"
-	"flag"
 	"fmt"
 	"hostlog/models"
 	"log"
@@ -14,17 +13,9 @@ import (
 var staticFiles embed.FS
 
 func main() {
-	mcpMode := flag.Bool("mcp", false, "Run in MCP mode (stdio)")
-	flag.Parse()
-
 	_, err := models.InitDB()
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
-	}
-
-	if *mcpMode {
-		ServeMCP()
-		return
 	}
 
 	// Set up syslog server
@@ -59,6 +50,9 @@ func main() {
 			}
 		}
 	}(channel)
+
+	// Set up MCP server
+	ServeMCP()
 
 	// Set up and start HTTP server
 	SetupHTTP(staticFiles)
