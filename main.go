@@ -51,9 +51,6 @@ func main() {
 		}
 	}(channel)
 
-	// Set up MCP server
-	ServeMCP()
-
 	// Set up and start HTTP server
 	SetupHTTP(staticFiles)
 	go StartHTTPServer("8080")

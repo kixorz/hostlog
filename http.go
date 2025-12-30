@@ -9,6 +9,8 @@ import (
 	"strconv"
 
 	"hostlog/models"
+
+	"github.com/mark3labs/mcp-go/server"
 )
 
 // Templates for HTML rendering
@@ -29,6 +31,11 @@ func SetupHTTP(staticFiles embed.FS) {
 	http.HandleFunc("/", handleIndex)
 	http.HandleFunc("/messages", handleMessages)
 	http.Handle("/static/", http.StripPrefix("/static/", fileServer))
+
+	// Register MCP endpoint
+	mcpServer := NewMCPServer()
+	sse := server.NewSSEServer(mcpServer)
+	http.Handle("/mcp/", sse)
 
 	// Create template functions map
 	funcMap := template.FuncMap{

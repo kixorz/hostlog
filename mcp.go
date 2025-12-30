@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"hostlog/models"
-	"log"
 
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
@@ -115,12 +114,4 @@ func getHostScoresHandler(ctx context.Context, request mcp.CallToolRequest) (*mc
 	}
 
 	return mcp.NewToolResultText(text), nil
-}
-
-func ServeMCP() {
-	s := NewMCPServer()
-	// Use stdio transport
-	if err := server.ServeStdio(s); err != nil {
-		log.Fatalf("MCP server error: %v", err)
-	}
 }
