@@ -3,9 +3,11 @@ package main
 import (
 	"embed"
 	"fmt"
+	"log"
+	"os"
+
 	"gopkg.in/mcuadros/go-syslog.v2"
 	"hostlog/models"
-	"log"
 )
 
 //go:embed static/* templates/*
@@ -18,20 +20,25 @@ func main() {
 	}
 
 	// Set up syslog server
+	syslogPort := os.Getenv("HOSTLOG_SYSLOG_PORT")
+	if syslogPort == "" {
+		syslogPort = "514"
+	}
+
 	channel := make(syslog.LogPartsChannel)
 	handler := syslog.NewChannelHandler(channel)
 
 	server := syslog.NewServer()
 	server.SetFormat(syslog.RFC3164)
 	server.SetHandler(handler)
-	server.ListenTCP("0.0.0.0:514")
-	server.ListenUDP("0.0.0.0:514")
+	server.ListenTCP("0.0.0.0:" + syslogPort)
+	server.ListenUDP("0.0.0.0:" + syslogPort)
 	err = server.Boot()
 	if err != nil {
 		log.Fatalf("Failed to start syslog server: %v", err)
 	}
 
-	fmt.Println("Syslog server started. Listening on port 514...")
+	fmt.Printf("Syslog server started. Listening on port %s...\n", syslogPort)
 
 	// Process incoming log messages
 	go func(channel syslog.LogPartsChannel) {
@@ -51,8 +58,13 @@ func main() {
 	}(channel)
 
 	// Set up and start HTTP server
+	httpPort := os.Getenv("HOSTLOG_HTTP_PORT")
+	if httpPort == "" {
+		httpPort = "8080"
+	}
+
 	SetupHTTP(staticFiles)
-	go StartHTTPServer("8080")
+	go StartHTTPServer(httpPort)
 
 	server.Wait()
 }
