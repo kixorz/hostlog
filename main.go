@@ -6,8 +6,9 @@ import (
 	"log"
 	"os"
 
-	"gopkg.in/mcuadros/go-syslog.v2"
 	"hostlog/models"
+
+	"gopkg.in/mcuadros/go-syslog.v2"
 )
 
 //go:embed static/* templates/*
