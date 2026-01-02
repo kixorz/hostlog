@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-var db *gorm.DB
+var DB *gorm.DB
 var DBPath string
 
 // DefaultDBPath is the default path for the SQLite database file
@@ -28,14 +28,14 @@ func InitDB() (*gorm.DB, error) {
 		DBPath = absPath
 	}
 
-	db, err = gorm.Open(sqlite.Open(DBPath), &gorm.Config{})
+	DB, err = gorm.Open(sqlite.Open(DBPath), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
 
-	db.AutoMigrate(&Log{}, &LogField{})
+	DB.AutoMigrate(&Log{}, &LogField{})
 
-	return db, nil
+	return DB, nil
 }
 
 func SaveLog(logParts map[string]interface{}) error {
@@ -52,7 +52,7 @@ func SaveLog(logParts map[string]interface{}) error {
 
 	go SaveLogFields(clientIP, logParts)
 
-	return db.Create(&log).Error
+	return DB.Create(&log).Error
 }
 
 func GetStringValue(logParts map[string]interface{}, key string) string {
@@ -92,7 +92,7 @@ func GetIntValue(logParts map[string]interface{}, key string) int {
 
 func GetFilteredLogs(hosts []string, page int) ([]Log, int, error) {
 	var logs []Log
-	query := db.Order("created_at desc")
+	query := DB.Order("created_at desc")
 
 	if len(hosts) > 0 {
 		query = query.Where("client_ip IN ?", hosts)
