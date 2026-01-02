@@ -2,12 +2,13 @@ package main
 
 import (
 	"embed"
+	"flag"
 	"fmt"
+	"hostlog/models"
 	"log"
 	"os"
 
-	"hostlog/models"
-
+	"github.com/mark3labs/mcp-go/server"
 	"gopkg.in/mcuadros/go-syslog.v2"
 )
 
@@ -15,6 +16,14 @@ import (
 var staticFiles embed.FS
 
 func main() {
+	mcpFlag := flag.Bool("mcp", false, "Run as an MCP server")
+	flag.Parse()
+
+	if *mcpFlag {
+		runMCPServer()
+		return
+	}
+
 	_, err := models.InitDB()
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
@@ -64,8 +73,17 @@ func main() {
 		httpPort = "8080"
 	}
 
-	SetupHTTP(staticFiles)
-	go StartHTTPServer(httpPort)
+	go StartHTTPServer("8080", staticFiles)
 
 	server.Wait()
+}
+
+func runMCPServer() {
+	_, err := models.InitDB()
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+
+	s := NewMCPServer()
+	server.ServeStdio(s)
 }

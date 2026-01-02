@@ -34,7 +34,7 @@ func setupTestDBFromCSV(t *testing.T) (*gorm.DB, func()) {
 		t.Fatalf("Failed to migrate schema: %v", err)
 	}
 
-	// Set the global DB variable to our test database
+	// Set the global db variable to our test database
 	models.DB = testDB
 
 	// Return a cleanup function
