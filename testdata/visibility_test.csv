@@ -1,0 +1,28 @@
+ClientIP,Hostname,Content,Priority,TimestampOffset
+192.168.1.1,host1,Critical error,0,-10
+192.168.1.1,host1,Error message 1,1,-20
+192.168.1.1,host1,Error message 2,2,-30
+192.168.1.1,host1,Warning message 1,3,-40
+192.168.1.1,host1,Warning message 2,4,-50
+192.168.1.1,host1,Info message,6,-180
+192.168.1.2,host2,Error message,1,-120
+192.168.1.2,host2,Warning message,4,-180
+192.168.1.2,host2,Info message 1,6,-240
+192.168.1.2,host2,Info message 2,7,-300
+192.168.1.3,host3,Old error message 1,0,-2880
+192.168.1.3,host3,Old error message 2,1,-2940
+192.168.1.3,host3,Old error message 3,2,-3000
+192.168.1.4,host4,Recent info message 1,6,-5
+192.168.1.4,host4,Recent info message 2,6,-15
+192.168.1.4,host4,Recent info message 3,7,-25
+192.168.1.5,host5,Warning burst 1,4,-5
+192.168.1.5,host5,Warning burst 2,4,-10
+192.168.1.5,host5,Warning burst 3,4,-15
+192.168.1.5,host5,Warning burst 4,4,-20
+192.168.1.5,host5,Warning burst 5,4,-25
+192.168.1.5,host5,Warning burst 6,4,-30
+192.168.1.5,host5,Warning burst 7,4,-35
+192.168.1.5,host5,Warning burst 8,4,-40
+192.168.1.6,host6,Recent error,1,-300
+192.168.1.6,host6,Old warning 1,3,-4320
+192.168.1.6,host6,Old warning 2,3,-4380
