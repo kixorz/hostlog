@@ -1,12 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"embed"
+	"fmt"
 	"html/template"
 	"io/fs"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"hostlog/models"
 
@@ -15,6 +18,40 @@ import (
 
 // Templates for HTML rendering
 var templates *template.Template
+
+type Broadcaster struct {
+	clients  map[chan models.Log]bool
+	entering chan chan models.Log
+	leaving  chan chan models.Log
+	Messages chan models.Log
+}
+
+var logBroadcaster = Broadcaster{
+	clients:  make(map[chan models.Log]bool),
+	entering: make(chan chan models.Log),
+	leaving:  make(chan chan models.Log),
+	Messages: make(chan models.Log),
+}
+
+func (b *Broadcaster) Start() {
+	for {
+		select {
+		case msg := <-b.Messages:
+			for client := range b.clients {
+				select {
+				case client <- msg:
+				default:
+					// Drop message if client is slow
+				}
+			}
+		case client := <-b.entering:
+			b.clients[client] = true
+		case client := <-b.leaving:
+			delete(b.clients, client)
+			close(client)
+		}
+	}
+}
 
 // StartHTTPServer initializes and starts the HTTP server with static files and dynamic routes
 func StartHTTPServer(port string, staticFiles embed.FS) {
@@ -33,6 +70,7 @@ func StartHTTPServer(port string, staticFiles embed.FS) {
 	// Set up routes on our mux
 	mux.HandleFunc("/", handleIndex)
 	mux.HandleFunc("/messages", handleMessages)
+	mux.HandleFunc("/events", handleEvents)
 	mux.Handle("/static/", http.StripPrefix("/static/", fileServer))
 
 	// Create the HTTP server
@@ -59,6 +97,7 @@ func StartHTTPServer(port string, staticFiles embed.FS) {
 	templates = template.Must(template.New("").Funcs(funcMap).ParseFS(staticFiles, "templates/*.html"))
 
 	log.Printf("Web server started. Listening on HTTP port %s...", port)
+	go logBroadcaster.Start()
 	if err := sse.Start(":" + port); err != nil {
 		log.Fatalf("Failed to start HTTP server: %v", err)
 	}
@@ -187,5 +226,50 @@ func handleMessages(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Error rendering template: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
+func handleEvents(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	clientChan := make(chan models.Log)
+	logBroadcaster.entering <- clientChan
+	defer func() {
+		logBroadcaster.leaving <- clientChan
+	}()
+
+	flusher, ok := w.(http.Flusher)
+	if !ok {
+		http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
+		return
+	}
+
+	for {
+		select {
+		case logEntry, ok := <-clientChan:
+			if !ok {
+				return
+			}
+			displayLogs := formatLogsForDisplay([]models.Log{logEntry})
+			if len(displayLogs) == 0 {
+				continue
+			}
+
+			var buf bytes.Buffer
+			err := templates.ExecuteTemplate(&buf, "log_row", displayLogs[0])
+			if err != nil {
+				log.Printf("Error rendering template: %v", err)
+				continue
+			}
+
+			htmlFragment := strings.ReplaceAll(buf.String(), "\n", "")
+			fmt.Fprintf(w, "data: %s\n\n", htmlFragment)
+			flusher.Flush()
+		case <-r.Context().Done():
+			return
+		}
 	}
 }

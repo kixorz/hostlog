@@ -38,7 +38,7 @@ func InitDB() (*gorm.DB, error) {
 	return DB, nil
 }
 
-func SaveLog(logParts map[string]interface{}) error {
+func SaveLog(logParts map[string]interface{}) (Log, error) {
 	clientString := GetStringValue(logParts, "client")
 	clientIP := ExtractIP(clientString)
 	log := Log{
@@ -52,7 +52,7 @@ func SaveLog(logParts map[string]interface{}) error {
 
 	go SaveLogFields(clientIP, logParts)
 
-	return DB.Create(&log).Error
+	return log, DB.Create(&log).Error
 }
 
 func GetStringValue(logParts map[string]interface{}, key string) string {

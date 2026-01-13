@@ -54,9 +54,12 @@ func main() {
 	go func(channel syslog.LogPartsChannel) {
 		for logParts := range channel {
 			// Save log message to database
-			if err := models.SaveLog(logParts); err != nil {
+			if logEntry, err := models.SaveLog(logParts); err != nil {
 				log.Printf("Error saving log: %v", err)
 			} else {
+				// Send to SSE broadcaster
+				logBroadcaster.Messages <- logEntry
+
 				// Print a brief confirmation (optional)
 				if content, ok := logParts["content"].(string); ok {
 					fmt.Printf("Saved log: %s\n", content)

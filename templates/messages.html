@@ -11,12 +11,7 @@
     <tbody>
     {{if .Logs}}
     {{range .Logs}}
-    <tr class="{{.Class}}">
-        <td class="timestamp-cell">{{.Timestamp}}</td>
-        <td>{{.Source}}</td>
-        <td>{{.Severity}}</td>
-        <td class="message-cell" title="{{.Message}}">{{.Message}}</td>
-    </tr>
+    {{template "log_row" .}}
     {{end}}
     {{else}}
     <tr>
@@ -33,4 +28,13 @@
         <li><a class="pagination-link is-current" data-page="{{.Page}}">{{add .Page 1}}</a></li>
     </ul>
 </nav>
+{{end}}
+
+{{define "log_row"}}
+<tr class="{{.Class}}" data-source="{{.Source}}">
+    <td class="timestamp-cell">{{.Timestamp}}</td>
+    <td>{{.Source}}</td>
+    <td>{{.Severity}}</td>
+    <td class="message-cell" title="{{.Message}}">{{.Message}}</td>
+</tr>
 {{end}}

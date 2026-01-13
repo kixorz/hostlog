@@ -31,6 +31,46 @@ class Grid {
         this.path = this.grid.getAttribute('data-path');
         this.filters.init(this);
         this.pagination.init(this);
+        this.initEvents();
+    };
+
+    initEvents() {
+        const eventSource = new EventSource('/events');
+        eventSource.onmessage = (event) => {
+            if (this.pagination.page !== 0) {
+                return;
+            }
+
+            const tbody = this.grid.querySelector('tbody');
+            if (tbody) {
+                const temp = document.createElement('template');
+                temp.innerHTML = event.data;
+                const row = temp.content.firstChild;
+
+                const source = row.getAttribute('data-source');
+                if (this.filters.values.size > 0 && !this.filters.values.has(source)) {
+                    return;
+                }
+
+                // If there was a "No logs found" message, remove it
+                if (tbody.children.length === 1 && tbody.querySelector('td[colspan="4"]')) {
+                    tbody.innerHTML = '';
+                }
+
+                tbody.insertBefore(row, tbody.firstChild);
+
+                // Optional: limit to 100 rows
+                if (tbody.children.length > 100) {
+                    tbody.removeChild(tbody.lastChild);
+                }
+            }
+        };
+
+        eventSource.onerror = (error) => {
+            console.error('Server sent event error:', error);
+            eventSource.close();
+            setTimeout(() => this.initEvents(), 5000);
+        };
     };
 };
 
